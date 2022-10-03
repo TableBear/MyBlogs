@@ -17,7 +17,7 @@
 
 
     <title>eBPF初览 | Bear&#39;s blogs</title>
-    <link rel="icon" type="image/png" href="/MyBlogs/favicon.png">
+    <link rel="icon" type="image/png" href="/MyBlogs/bear-favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/MyBlogs/libs/awesome/css/all.css">
     <link rel="stylesheet" type="text/css" href="/MyBlogs/libs/materialize/materialize.min.css">
@@ -29,8 +29,7 @@
 
     <script src="/MyBlogs/libs/jquery/jquery.min.js"></script>
 
-<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/MyBlogs/css/prism-tomorrow.css" type="text/css">
-<link rel="stylesheet" href="/MyBlogs/css/prism-line-numbers.css" type="text/css"></head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 
 
 
@@ -42,7 +41,7 @@
             <div class="brand-logo">
                 <a href="/MyBlogs/" class="waves-effect waves-light">
                     
-                    <img src="/MyBlogs/medias/logo.png" class="logo-img" alt="LOGO">
+                    <img src="/MyBlogs/medias/bear-logo.png" class="logo-img" alt="LOGO">
                     
                     <span class="logo-span">Bear&#39;s blogs</span>
                 </a>
@@ -119,7 +118,7 @@
 
     <div class="mobile-head bg-color">
         
-        <img src="/MyBlogs/medias/logo.png" class="logo-img circle responsive-img">
+        <img src="/MyBlogs/medias/bear-logo.png" class="logo-img circle responsive-img">
         
         <div class="logo-name">Bear&#39;s blogs</div>
         <div class="logo-desc">
@@ -433,6 +432,9 @@
         <hr class="clearfix">
 
         
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/MyBlogs/libs/prism/prism.css">
+        
 
         
 
@@ -441,7 +443,7 @@
                 <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>eBPF</code>是一种内核观测&#x2F;分析技术。可以实现内核插桩，内核函数跟踪点以及性能事件观测。</p>
 <p><code>eBPF</code>有一套基本的开发和运行流程。</p>
 <p>使用C语言开发<code>eBPF</code>程序→ 利用<code>LLVM</code>将<code>eBPF</code>程序编译成<code>BPF</code>字节码 → 通过<code>BPF</code>系统调用加载到内核 → 内核验证并运行<code>BPF</code>字节码 → 用户程序通过<code>BPF</code>映射查询<code>BPF</code>字节码的运行状态。</p>
-<p><img src="/MyBlogs/./images/BPF%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B.webp" alt="BPF运行流程"></p>
+<p><img src="/MyBlogs/.io//eBPF%E5%88%9D%E8%A7%88/BPF%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B.webp" alt="BPF运行流程"></p>
 <h2 id="eBPF相关开发框架"><a href="#eBPF相关开发框架" class="headerlink" title="eBPF相关开发框架"></a>eBPF相关开发框架</h2><p><code>eBPF</code>开发框架有如下几个：</p>
 <ul>
 <li>bpftrace</li>
