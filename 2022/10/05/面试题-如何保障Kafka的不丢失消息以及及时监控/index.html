@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="eBPF初览, 技术分享,计算机,Java">
+    <meta name="keywords" content="面试题-如何保障Kafka的不丢失消息以及及时监控, 技术分享,计算机,Java">
     <meta name="description" content="Bear的个人博客">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>eBPF初览 | Bear&#39;s blogs</title>
+    <title>面试题-如何保障Kafka的不丢失消息以及及时监控 | Bear&#39;s blogs</title>
     <link rel="icon" type="image/png" href="/MyBlogs/bear-favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/MyBlogs/libs/awesome/css/all.css">
@@ -271,7 +271,7 @@
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">eBPF初览</h1>
+                    <h1 class="description center-align post-title">面试题-如何保障Kafka的不丢失消息以及及时监控</h1>
                 </div>
             </div>
         </div>
@@ -387,12 +387,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/MyBlogs/tags/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/">
-                                <span class="chip bg-color">前沿技术</span>
-                            </a>
-                        
-                            <a href="/MyBlogs/tags/eBPF/">
-                                <span class="chip bg-color">eBPF</span>
+                            <a href="/MyBlogs/tags/Kafka/">
+                                <span class="chip bg-color">Kafka</span>
                             </a>
                         
                     </div>
@@ -403,8 +399,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/MyBlogs/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-category">
-                                学习笔记
+                            <a href="/MyBlogs/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/" class="post-category">
+                                面试题
                             </a>
                         
                     </div>
@@ -416,7 +412,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-10-03
+                    2022-10-05
                 </div>
                 
 
@@ -440,19 +436,28 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>eBPF</code>是一种内核观测&#x2F;分析技术。可以实现内核插桩，内核函数跟踪点以及性能事件观测。</p>
-<p><code>eBPF</code>有一套基本的开发和运行流程。</p>
-<p>使用C语言开发<code>eBPF</code>程序→ 利用<code>LLVM</code>将<code>eBPF</code>程序编译成<code>BPF</code>字节码 → 通过<code>BPF</code>系统调用加载到内核 → 内核验证并运行<code>BPF</code>字节码 → 用户程序通过<code>BPF</code>映射查询<code>BPF</code>字节码的运行状态。</p>
-<p><img src="/MyBlogs/2022/10/03/eBPF%E5%88%9D%E8%A7%88/BPF%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B.webp" alt="BPF运行流程"></p>
-<h2 id="eBPF相关开发框架"><a href="#eBPF相关开发框架" class="headerlink" title="eBPF相关开发框架"></a>eBPF相关开发框架</h2><p><code>eBPF</code>开发框架有如下几个：</p>
+                <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>最近在面试找工作。在一次面试中，被问到了这样一个问题。如何保障Kafka不丢失消息，以及在出现消息丢失的时候及时。当时，被问到的时候有点惊慌失措稀里糊涂得回答了一下。面试复盘的时候，感觉这是一个很考验开发人员的技术功底。于是，在这里结合自己的一些见识记录一下我关于这个技术问题的见解。</p>
+<p>这个问题我认为可以拆分为两个子问题来解决。</p>
+<ol>
+<li>如何保障Kafka消息不丢失，提高消息传递可靠性。</li>
+<li>如何监控Kafka在发现消息丢失时及时告警。</li>
+</ol>
+<h2 id="二、如何保障Kafka消息不丢失？"><a href="#二、如何保障Kafka消息不丢失？" class="headerlink" title="二、如何保障Kafka消息不丢失？"></a>二、如何保障Kafka消息不丢失？</h2><h3 id="2-1-存在消息丢失的隐患"><a href="#2-1-存在消息丢失的隐患" class="headerlink" title="2.1 存在消息丢失的隐患"></a>2.1 存在消息丢失的隐患</h3><p>Kafka作为一个消息中间件系统。消息丢失可能会出现在传递链路的每一环节上面。</p>
+<p><img src="/MyBlogs/2022/10/05/%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%A6%82%E4%BD%95%E4%BF%9D%E9%9A%9CKafka%E7%9A%84%E4%B8%8D%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E4%BB%A5%E5%8F%8A%E5%8F%8A%E6%97%B6%E7%9B%91%E6%8E%A7/Kafka%E6%B6%88%E8%B4%B9%E7%A4%BA%E4%BE%8B.png" alt="Kafka消费示例"></p>
+<p>在上图中Kafka消息生产和消费的的过程中，存在四处可能导致消息丢失的地方。</p>
 <ul>
-<li><code>bpftrace</code></li>
-<li><code>BCC</code>（<code>BPF</code> Compiler Collection）</li>
-<li><code>libbpf</code></li>
+<li>由于Kafka采用的策略是异步+批消息的发送机制所以如果在①处生产者采用<code>fire then forget</code>的方式生产消息。可能存在消息还在生产者的内存队列中还没发送出去，生产者宕机导致消息丢失的问题。</li>
+<li>在第②处生产者有可能发送完消息之后，未等待Broker返回写入成功信息即认为消息写入成功，实际上Broker可能并未收到或者写入成功。例如：配置了<code>acks=0</code>，那么生产者调用Socket的发送函数将消息发送出去之后就认为发送成功了，但在发送的时间节点生产者宕机那么就会出现消息丢失。</li>
+<li>③处存在这样的消息丢失的情况。如果同步副本集的配置不合理，导致同步副本集的Broker个数仅有1个Broker数量，那么Leader Broker在写入本地之后没有将消息同步到其他副本。那么在Leader崩溃之后，Leader重选举之后新的Leader副本是不可能会有最近写入的消息，从而导致消息丢失。这种情况可能是<code>min.insync.replicas</code>配置了1并且开起了不完全选举<code>unclean.leader.election.enable</code>，然后因为各种原因导致了跟随者副本的复制延迟大于了<code>replica.log.time.max.ms</code>配置的值。</li>
+<li>在④处可能由于消费者自动提交位移或者处理完成批消息之前就提前提交位移，如果处理消息过程中消费者宕机，那么此时会丢失提交了位移但还未处理的消息。</li>
 </ul>
-<p><code>bpftrace</code>是一个命令行工具。</p>
-<p><code>BCC</code>是一个使用Python语言开发的<code>BPF</code>编译工具集合。提供加载<code>eBPF</code>，创建映射，访问映射等相关Python语言的<code>API</code>。</p>
-<p><code>libbpf</code>是从内核中抽离出来的标准库。利用<code>BTF</code>（<code>BPF</code>格式类型）以及CO-RE技术，开发出来的<code>eBPF</code>程序可以在没有安装<code>LLVM</code>以及内核头文件的机器进行分发。</p>
+<h3 id="2-2-提高可靠性，减少消息丢失"><a href="#2-2-提高可靠性，减少消息丢失" class="headerlink" title="2.2 提高可靠性，减少消息丢失"></a>2.2 提高可靠性，减少消息丢失</h3><p>从上一节介绍了整个传输链路中消息丢失可能出现的位置。为了较少消息丢失，提高消息传递的可靠性。需要从生产者到Kafka集群，以及Kafka集群到消费者整条链路的优化。</p>
+<h4 id="2-2-1-生产者端的优化"><a href="#2-2-1-生产者端的优化" class="headerlink" title="2.2.1 生产者端的优化"></a>2.2.1 生产者端的优化</h4><p>生产者端需要采用同步发送或者采用异步回调的形式。</p>
+<p>另一方面，确认模式需要采用<code>acks=all</code>模式。<code>acks=all</code>的模式领导者副本会等待所有的ISR（同步副本集）都写入成功之后才给生产者返回写入成功，同时生产者也会等Broker返回成功之后再继续发送下一批消息。</p>
+<p>生产者端重试</p>
+<h4 id="2-2-2-Kafka集群的配置优化"><a href="#2-2-2-Kafka集群的配置优化" class="headerlink" title="2.2.2 Kafka集群的配置优化"></a>2.2.2 Kafka集群的配置优化</h4><p>为了保证Broker节点Crash之后，消息必须被复制到多个同步副本中去</p>
+<h4 id="2-2-3-消费者端的优化"><a href="#2-2-3-消费者端的优化" class="headerlink" title="2.2.3 消费者端的优化"></a>2.2.3 消费者端的优化</h4><p>消费者端需要</p>
+<h2 id="三、如何监控Kafka出现消息丢失"><a href="#三、如何监控Kafka出现消息丢失" class="headerlink" title="三、如何监控Kafka出现消息丢失"></a>三、如何监控Kafka出现消息丢失</h2><p>其实关于这一点，我没有很好的实践过。</p>
 
                 
             </div>
@@ -479,7 +484,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://tablebear.github.io/MyBlogs/2022/10/03/eBPF%E5%88%9D%E8%A7%88/">https://tablebear.github.io/MyBlogs/2022/10/03/eBPF%E5%88%9D%E8%A7%88/</a>
+                    <a href="https://tablebear.github.io/MyBlogs/2022/10/05/%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%A6%82%E4%BD%95%E4%BF%9D%E9%9A%9CKafka%E7%9A%84%E4%B8%8D%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E4%BB%A5%E5%8F%8A%E5%8F%8A%E6%97%B6%E7%9B%91%E6%8E%A7/">https://tablebear.github.io/MyBlogs/2022/10/05/%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%A6%82%E4%BD%95%E4%BF%9D%E9%9A%9CKafka%E7%9A%84%E4%B8%8D%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E4%BB%A5%E5%8F%8A%E5%8F%8A%E6%97%B6%E7%9B%91%E6%8E%A7/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -517,12 +522,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/MyBlogs/tags/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/">
-                                    <span class="chip bg-color">前沿技术</span>
-                                </a>
-                            
-                                <a href="/MyBlogs/tags/eBPF/">
-                                    <span class="chip bg-color">eBPF</span>
+                                <a href="/MyBlogs/tags/Kafka/">
+                                    <span class="chip bg-color">Kafka</span>
                                 </a>
                             
                         </div>
@@ -566,9 +567,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/MyBlogs/2022/10/05/%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%A6%82%E4%BD%95%E4%BF%9D%E9%9A%9CKafka%E7%9A%84%E4%B8%8D%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF%E4%BB%A5%E5%8F%8A%E5%8F%8A%E6%97%B6%E7%9B%91%E6%8E%A7/">
                     <div class="card-image">
@@ -586,9 +588,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-10-05
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-05
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -601,6 +603,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -619,13 +622,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/MyBlogs/2022/09/29/MySQL%E4%B8%AD%E7%9A%84%E9%94%81/">
+                <a href="/MyBlogs/2022/10/03/eBPF%E5%88%9D%E8%A7%88/">
                     <div class="card-image">
                         
                         
-                        <img src="/MyBlogs/medias/featureimages/8.jpg" class="responsive-img" alt="MySQL中的锁">
+                        <img src="/MyBlogs/medias/featureimages/10.jpg" class="responsive-img" alt="eBPF初览">
                         
-                        <span class="card-title">MySQL中的锁</span>
+                        <span class="card-title">eBPF初览</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -636,7 +639,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-09-29
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-03
                             </span>
                         <span class="publish-author">
                             
@@ -646,10 +649,6 @@
                                     学习笔记
                                 </a>
                             
-                            <a href="/MyBlogs/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
-                                    数据库
-                                </a>
-                            
                             
                         </span>
                     </div>
@@ -657,12 +656,12 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/MyBlogs/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">
-                        <span class="chip bg-color">数据库</span>
+                    <a href="/MyBlogs/tags/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/">
+                        <span class="chip bg-color">前沿技术</span>
                     </a>
                     
-                    <a href="/MyBlogs/tags/MySQL/">
-                        <span class="chip bg-color">MySQL</span>
+                    <a href="/MyBlogs/tags/eBPF/">
+                        <span class="chip bg-color">eBPF</span>
                     </a>
                     
                 </div>
