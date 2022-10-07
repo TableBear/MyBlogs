@@ -444,15 +444,17 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>锁其实是内存的一种结构。</p>
+                <p>按照锁锁定的对象、锁定的范围以及行为特征。MySQL中涉及到的锁可以按照如下进行分类。</p>
 <ul>
-<li>作用范围：表锁、行锁</li>
-<li>作用类型：记录锁、间隙锁、Next-Key锁</li>
-<li>行为类型：共享锁（Share Mode）、互斥锁（Excludes Mode）、意向锁（Intended Lock）</li>
+<li>作用对象：表锁、行锁</li>
+<li>作用范围：记录锁、间隙锁、Next-Key锁</li>
+<li>行为类型：共享锁（Share Mode）、互斥锁（Excludes Mode）、意向锁（Intended Lock）、插入意向锁（Insert Intended Lock）</li>
 </ul>
-<blockquote>
-<p>意向锁和间隙锁功能偏弱</p>
-</blockquote>
+<p>表锁作用于表上面，可以使用下面的语句对一张表进行加锁。</p>
+<pre class="language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">Lock</span> <span class="token keyword">Table</span> <span class="token operator">&lt;</span>tableName<span class="token operator">></span> <span class="token operator">IN</span> &#123;<span class="token keyword">SHARE</span><span class="token operator">|</span><span class="token keyword">WRITE</span><span class="token operator">|</span>EXCLUSIVE&#125; <span class="token keyword">MODE</span> <span class="token punctuation">[</span>WAIT <span class="token operator">&lt;</span><span class="token keyword">time</span><span class="token operator">></span><span class="token punctuation">]</span></code></pre>
+
+<p>表锁也分为共享锁和互斥锁。互斥</p>
+<p>行锁也称记录锁。</p>
 
                 
             </div>
